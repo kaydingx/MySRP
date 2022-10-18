@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.Profiling;
 using UnityEngine.Rendering;
 
 partial class CameraRenderer
@@ -16,9 +17,13 @@ partial class CameraRenderer
     
 #if UNITY_EDITOR
 
+    private string SampleName { get; set; }
+
     partial void PrepareBuffer()
     {
-        buffer.name = camera.name;
+        Profiler.BeginSample("Editor Only");
+        buffer.name = SampleName = camera.name;
+        Profiler.EndSample();
     }
     
     partial void PrepareForSceneWindow()
@@ -69,5 +74,9 @@ partial class CameraRenderer
         var filteringSettings = FilteringSettings.defaultValue;
         context.DrawRenderers(cullingResults, ref drawingSettings, ref filteringSettings);
     }
+    
+#else
+    const string SampleName = bufferName;
 #endif
+    
 }
